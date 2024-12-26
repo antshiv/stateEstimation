@@ -1,0 +1,3 @@
+[submodule "external/attitudeMathLibrary"]
+	path = external/attitudeMathLibrary
+	url = https://github.com/antshiv/attitudeMathLibrary.git
