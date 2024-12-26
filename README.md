@@ -13,7 +13,7 @@ A lightweight C library for state estimation, focusing on attitude, position, an
 
 ## Dependencies
 
-- [Attitude Math Library](https://github.com/yourusername/attitude_math) (included as submodule)
+- [Attitude Math Library](https://github.com/antshiv/attitudeMathLibrary.git) (included as submodule)
 - Standard C library
 - CMake (for building)
 
@@ -23,7 +23,7 @@ A lightweight C library for state estimation, focusing on attitude, position, an
 stateEstimation/
 ├── CMakeLists.txt
 ├── external/
-│   └── attitude_math/  (git submodule)
+│   └── attitudeMathLibrary/  (git submodule)
 ├── include/
 │   ├── estimators/
 │   │   ├── attitude_estimator.h
@@ -44,7 +44,7 @@ stateEstimation/
 
 1. Clone the repository with submodules:
 ```bash
-git clone --recursive https://github.com/yourusername/state_estimation.git
+git clone --recursive https://github.com/antshiv/stateEstimation.git 
 cd state_estimation
 ```
 
