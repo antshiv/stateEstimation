@@ -1,6 +1,4 @@
-# State Estimation  - Library in C ( C-StateEstimator)
-
-# State Estimation Library
+# State Estimation Library in C ( C-StateEstimator)
 
 A lightweight C library for state estimation, focusing on attitude, position, and sensor fusion. This library provides implementations of common filtering algorithms including complementary and Kalman filters.
 
