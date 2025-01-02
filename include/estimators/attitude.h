@@ -6,17 +6,33 @@
 #include "attitude/dcm.h"
 #include "attitude/attitude_utils.h"
 
+// Estimation method enumeration
+typedef enum {
+    ESTIMATOR_COMPLEMENTARY,
+    ESTIMATOR_KALMAN
+} EstimatorType;
+
+// Kalman filter specific configuration
+typedef struct {
+    double process_noise[7];      // Process noise for [q0,q1,q2,q3,bias_x,bias_y,bias_z]
+    double measurement_noise[3];   // Measurement noise for accelerometer [x,y,z]
+    double P[7][7];               // Initial covariance matrix
+} KalmanConfig;
+
 // Attitude estimator configuration
 typedef struct {
-    double alpha;     // Complementary filter weight
-    double dt;        // Sample time
+    EstimatorType type;           // Estimation method to use
+    double alpha;                 // Complementary filter weight
+    double dt;                    // Sample time
+    KalmanConfig kalman;          // Kalman filter specific settings
 } AttitudeEstConfig;
 
 // Attitude estimator state
 typedef struct {
-    double q[4];              // Current orientation quaternion [w,x,y,z]
-    double gyro_bias[3];      // Estimated gyro bias [x,y,z]
-    double omega[3];          // Angular velocity [x,y,z]
+    double q[4];                  // Current orientation quaternion [w,x,y,z]
+    double gyro_bias[3];          // Estimated gyro bias [x,y,z]
+    double omega[3];              // Angular velocity [x,y,z]
+    double P[7][7];               // State covariance matrix for Kalman filter
     AttitudeEstConfig config;
     double timestamp;
     int initialized;

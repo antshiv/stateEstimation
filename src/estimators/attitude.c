@@ -2,22 +2,37 @@
 #include <string.h>
 #include <math.h>
 
+// Forward declarations for internal functions
+static void complementary_filter_update(AttitudeEstimator* est, 
+                                      const double gyro_unbiased[3],
+                                      const double accel_normalized[3]);
+                                      
+static void kalman_filter_update(AttitudeEstimator* est,
+                                const double gyro_unbiased[3],
+                                const double accel_normalized[3]);
+
 void attitude_estimator_init(AttitudeEstimator* est, const AttitudeEstConfig* config) {
     if (!est || !config) return;
-
-    // Initialize quaternion to identity [w,x,y,z]
-    est->q[0] = 1.0;
-    est->q[1] = 0.0;
-    est->q[2] = 0.0;
-    est->q[3] = 0.0;
-
-    // Clear gyro bias and angular velocity
-    memset(est->gyro_bias, 0, sizeof(est->gyro_bias));
-    memset(est->omega, 0, sizeof(est->omega));
-
-    // Copy configuration
+    
     est->config = *config;
     est->initialized = 0;
+    est->timestamp = 0;
+    
+    // Initialize quaternion to identity
+    est->q[0] = 1.0;
+    est->q[1] = est->q[2] = est->q[3] = 0.0;
+    
+    // Initialize bias estimate to zero
+    est->gyro_bias[0] = est->gyro_bias[1] = est->gyro_bias[2] = 0.0;
+    
+    // Initialize covariance matrix if using Kalman filter
+    if (config->type == ESTIMATOR_KALMAN) {
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 7; j++) {
+                est->P[i][j] = (i == j) ? config->kalman.P[i][j] : 0.0;
+            }
+        }
+    }
 }
 
 void attitude_estimator_update(AttitudeEstimator* est, const double gyro[3], const double accel[3]) {
