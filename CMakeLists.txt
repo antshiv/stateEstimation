@@ -31,10 +31,12 @@ target_include_directories(state_estimation PUBLIC ${INCLUDE_DIRS})
 # Create a test executable
 add_executable(test_attitude_estimate test/test_attitude.c)
 add_executable(test_attitude_estimate_fn test/test_attitude_fn.c)
+add_executable(test_attitude_kalman test/test_kalman.c)
 
 # Link the test executable with the library
 target_link_libraries(test_attitude_estimate PRIVATE state_estimation m attitude)
 target_link_libraries(test_attitude_estimate_fn PRIVATE state_estimation m attitude)
+target_link_libraries(test_attitude_kalman PRIVATE state_estimation m attitude)
 
 # Add tests
 enable_testing()
