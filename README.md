@@ -46,7 +46,7 @@ stateEstimation/
     ├── test_attitude.c         # Basic attitude tests
     ├── test_attitude_fn.c      # Function-specific tests
     └── test_kalman.c          # Kalman filter tests
-
+```
 
 ## Building
 
