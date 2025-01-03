@@ -1,10 +1,12 @@
-# State Estimation Library in C ( C-StateEstimator)
-
+# State Estimation Library in C (C-StateEstimator)
 A lightweight C library for state estimation, focusing on attitude, position, and sensor fusion. This library provides implementations of common filtering algorithms including complementary and Kalman filters.
 
 ## Features
-
-- Attitude estimation using complementary filter
+- Multiple attitude estimation methods:
+  - Complementary filter (simple, efficient)
+  - Basic Kalman filter (better accuracy, more computational cost)
+  - Extended Kalman filter (coming soon)
+  - Unscented Kalman filter (coming soon)
 - Position estimation
 - Support for various sensor inputs (IMU, accelerometer, gyroscope)
 - Configurable filter parameters
@@ -12,33 +14,39 @@ A lightweight C library for state estimation, focusing on attitude, position, an
 - Platform-independent implementation
 
 ## Dependencies
-
 - [Attitude Math Library](https://github.com/antshiv/attitudeMathLibrary.git) (included as submodule)
 - Standard C library
 - CMake (for building)
 
 ## Directory Structure
-
-```
+```bash
 stateEstimation/
 ├── CMakeLists.txt
 ├── external/
-│   └── attitudeMathLibrary/  (git submodule)
+│   └── attitudeMathLibrary/    # Git submodule for attitude mathematics
 ├── include/
-│   ├── estimators/
-│   │   ├── attitude_estimator.h
-│   │   ├── position_estimator.h
-│   │   └── trajectory_estimator.h
-│   ├── filters/
-│   │   ├── complementary.h
-│   │   ├── kalman.h
-│   │   └── particle.h
+│   ├── estimators/             # Main estimator interfaces
+│   │   ├── attitude.h          # Attitude estimation interface
+│   │   ├── position.h
+│   │   └── trajectory.h
+│   ├── filters/                # Filter implementations
+│   │   ├── complementary.h     # Complementary filter
+│   │   ├── kalman.h           # Kalman filter implementations
+│   │   ├── particle.h
+│   │   └── vector_ops.h       # Vector operations
 │   └── types/
-│       └── state_types.h
-└── src/
-    ├── estimators/
-    └── filters/
-```
+│       └── state_types.h       # Common data structures
+├── src/
+│   └── estimators/
+│       └── attitude.c          # Attitude estimation implementation
+└── test/
+    ├── scripts/                # Test data generation
+    │   ├── data_gen.py
+    │   └── imu_data.csv
+    ├── test_attitude.c         # Basic attitude tests
+    ├── test_attitude_fn.c      # Function-specific tests
+    └── test_kalman.c          # Kalman filter tests
+
 
 ## Building
 
@@ -63,14 +71,14 @@ make
 
 ```c
 #include <stdio.h>
-#include "estimators/attitude_estimator.h"
+#include "estimators/attitude.h"
 
 int main() {
-    // Initialize estimator
+    // Initialize estimator with Kalman filter
     AttitudeEstimator estimator;
     AttitudeEstConfig config = {
-        .alpha = 0.98,  // Complementary filter weight
-        .dt = 0.01      // 100Hz sample rate
+        .type = ESTIMATOR_KALMAN,
+        .dt = 0.01  // 100Hz sample rate
     };
     attitude_estimator_init(&estimator, &config);
 
@@ -82,7 +90,6 @@ int main() {
     // Get attitude estimate
     double quaternion[4];
     attitude_estimator_get_quaternion(&estimator, quaternion);
-
     return 0;
 }
 ```
@@ -122,6 +129,7 @@ Run the test suite:
 ```bash
 cd build
 ./test_attitude
+./test_kalman         # Kalman filter specific tests
 ```
 
 ## Contributing
