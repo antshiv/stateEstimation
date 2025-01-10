@@ -1,150 +1,149 @@
 # State Estimation Library in C (C-StateEstimator)
-A lightweight C library for state estimation, focusing on attitude, position, and sensor fusion. This library provides implementations of common filtering algorithms including complementary and Kalman filters.
+A lightweight C library for state estimation focusing on attitude and altitude estimation using sensor fusion techniques.
 
 ## Features
-- Multiple attitude estimation methods:
-  - Complementary filter (simple, efficient)
-  - Basic Kalman filter (better accuracy, more computational cost)
-  - Extended Kalman filter (coming soon)
-  - Unscented Kalman filter (coming soon)
-- Position estimation
-- Support for various sensor inputs (IMU, accelerometer, gyroscope)
-- Configurable filter parameters
-- Minimal dependencies
-- Platform-independent implementation
+- Attitude Estimation
+  - Complementary filter
+  - Extended Kalman filter
+  - Quaternion-based representation
+  - Bias estimation
+- Altitude Estimation
+  - Multi-sensor fusion (IMU, barometer, ToF)
+  - Bias compensation
+  - Robust to sensor dropouts
+- Coming Soon
+  - Unscented Kalman filter
+  - Position estimation
+  - Trajectory tracking
 
 ## Dependencies
-- [Attitude Math Library](https://github.com/antshiv/attitudeMathLibrary.git) (included as submodule)
+- [Attitude Math Library](https://github.com/antshiv/attitudeMathLibrary.git)
 - Standard C library
-- CMake (for building)
+- CMake (3.10+)
 
-## Directory Structure
+## Quick Start
 ```bash
-stateEstimation/
-├── CMakeLists.txt
-├── external/
-│   └── attitudeMathLibrary/    # Git submodule for attitude mathematics
-├── include/
-│   ├── estimators/             # Main estimator interfaces
-│   │   ├── attitude.h          # Attitude estimation interface
-│   │   ├── position.h
-│   │   └── trajectory.h
-│   ├── filters/                # Filter implementations
-│   │   ├── complementary.h     # Complementary filter
-│   │   ├── kalman.h           # Kalman filter implementations
-│   │   ├── particle.h
-│   │   └── vector_ops.h       # Vector operations
-│   └── types/
-│       └── state_types.h       # Common data structures
-├── src/
-│   └── estimators/
-│       └── attitude.c          # Attitude estimation implementation
-└── test/
-    ├── scripts/                # Test data generation
-    │   ├── data_gen.py
-    │   └── imu_data.csv
-    ├── test_attitude.c         # Basic attitude tests
-    ├── test_attitude_fn.c      # Function-specific tests
-    └── test_kalman.c          # Kalman filter tests
-```
-
-## Building
-
-1. Clone the repository with submodules:
-```bash
+# Clone and build
 git clone --recursive https://github.com/antshiv/stateEstimation.git 
-cd state_estimation
-```
-
-2. Create and enter build directory:
-```bash
+cd stateEstimation
 mkdir build && cd build
-```
-
-3. Build the library:
-```bash
 cmake ..
 make
+
+# Run tests
+./test_attitude
+./test_altitude
 ```
 
-## Usage Example
-
-```c
-#include <stdio.h>
-#include "estimators/attitude.h"
-
-int main() {
-    // Initialize estimator with Kalman filter
-    AttitudeEstimator estimator;
-    AttitudeEstConfig config = {
-        .type = ESTIMATOR_KALMAN,
-        .dt = 0.01  // 100Hz sample rate
-    };
-    attitude_estimator_init(&estimator, &config);
-
-    // Update with sensor data
-    double gyro[3] = {0.01, 0.02, 0.03};  // rad/s
-    double accel[3] = {0.0, 0.0, 1.0};    // g
-    attitude_estimator_update(&estimator, gyro, accel);
-
-    // Get attitude estimate
-    double quaternion[4];
-    attitude_estimator_get_quaternion(&estimator, quaternion);
-    return 0;
-}
-```
-
-## API Reference
+## Usage Examples
 
 ### Attitude Estimation
-
 ```c
-// Initialize attitude estimator
-void attitude_estimator_init(AttitudeEstimator* est, const AttitudeEstConfig* config);
+#include "estimators/attitude.h"
 
-// Update with new measurements
-void attitude_estimator_update(AttitudeEstimator* est,
-                             const double gyro[3],    // Gyro measurements [x,y,z]
-                             const double accel[3]);  // Accelerometer measurements [x,y,z]
+// Initialize
+AttitudeEstConfig config = {
+    .type = ESTIMATOR_KALMAN,
+    .dt = 0.01  // 100Hz
+};
+AttitudeEstimator estimator;
+attitude_estimator_init(&estimator, &config);
 
-// Get current attitude estimates
-void attitude_estimator_get_quaternion(const AttitudeEstimator* est, double q[4]);
-void attitude_estimator_get_euler(const AttitudeEstimator* est, EulerAngles* euler);
+// Update and get estimate
+double gyro[3] = {0.01, 0.02, 0.03};  // rad/s
+double accel[3] = {0.0, 0.0, 1.0};    // g
+attitude_estimator_update(&estimator, gyro, accel);
+
+double quaternion[4];
+attitude_estimator_get_quaternion(&estimator, quaternion);
+```
+
+### Altitude Estimation
+```c
+#include "estimators/altitude.h"
+
+// Initialize with default configuration
+AltitudeEstConfig config;
+altitude_estimator_get_default_config(&config);
+AltitudeEstimator estimator;
+altitude_estimator_init(&estimator, &config);
+
+// Update and get estimate
+altitude_estimator_update(&estimator, 9.81, 98000.0, 20.0, 2.0);
+
+double altitude, velocity, acceleration;
+altitude_estimator_get_state(&estimator, &altitude, &velocity, &acceleration);
 ```
 
 ## Configuration Parameters
 
 ### Complementary Filter
-- `alpha`: Weight for gyroscope integration (0.0 - 1.0)
-- `dt`: Sample time in seconds
-
-### Attitude Estimator
-- Gyroscope bias estimation
-- Adaptive filtering during rapid motion
-- Quaternion-based attitude representation
-
-## Testing
-
-Run the test suite:
-```bash
-cd build
-./test_attitude
-./test_kalman         # Kalman filter specific tests
+```c
+typedef struct {
+    double alpha;     // Gyro weight [0.0-1.0]
+    double dt;        // Sample time (seconds)
+} ComplementaryConfig;
 ```
 
-## Contributing
+### Kalman Filter
+```c
+typedef struct {
+    // Process noise covariance
+    double Q[7][7];   // State noise
+    
+    // Measurement noise covariance
+    double R[3][3];   // Sensor noise
+    
+    // Initial state covariance
+    double P0[7][7];  // Initial uncertainty
+    
+    // Filter parameters
+    double dt;        // Sample time
+    int max_iterations; // For iterative updates
+} KalmanConfig;
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Altitude Estimator
+```c
+typedef struct {
+    // Process noise for states
+    double process_noise[5];     // [h, v, a, baro_bias, accel_bias]
+    double measurement_noise[2]; // [barometer, tof]
+    
+    // Sensor configuration
+    double tof_angle;           // ToF mounting angle
+    double ground_pressure;     // Reference pressure
+    double ground_temperature;  // Reference temperature
+    
+    // Filter parameters
+    double dt;                  // Sample time
+} AltitudeEstConfig;
+```
+
+## Testing
+- Basic tests: `test_attitude.c`, `test_altitude.c`
+- Detailed tests: `test_altitude_verbose.c`
+- Individual filter tests: `test_kalman.c`
+- Test documentation: See `doc/test_altitude.md`
+
+## Project Structure
+```
+stateEstimation/
+├── include/                  # Public headers
+│   ├── estimators/          # Main interfaces
+│   ├── filters/             # Filter implementations
+│   └── types/               # Data structures
+├── src/                     # Implementation
+├── test/                    # Test suite
+└── doc/                     # Documentation
+```
 
 ## License
+MIT License - See LICENSE file
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Thank you to the contributors of the Attitude Math Library
-- Inspired by various state estimation techniques in robotics and aerospace applications
+## Contributing
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
