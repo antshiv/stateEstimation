@@ -71,4 +71,7 @@ void altitude_estimator_set_ground_reference(AltitudeEstimator* est,
                                           double ground_pressure,
                                           double ground_temperature);
 
+// Add this declaration to your header file
+void altitude_estimator_get_default_config(AltitudeEstConfig* config);
+
 #endif // ALTITUDE_ESTIMATOR_H
