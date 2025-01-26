@@ -15,6 +15,7 @@ int pass_fail(double value, double expected, double tolerance) {
 void test_case(const char* name,
                const double gyro[3], 
                const double accel[3],
+               const double mag[3],
                double duration,
                double dt,
                const EulerAngles* expected,
@@ -49,7 +50,7 @@ void test_case(const char* name,
             current_accel[2] /= acc_norm;
         }
 
-        attitude_estimator_update(&est, gyro, current_accel);
+        attitude_estimator_update(&est, gyro, current_accel, mag);
 
         // Print progress every 10%
         if (i % (steps / 10) == 0) {
@@ -85,9 +86,10 @@ void run_tests() {
     // Test pitch rotation
     double pitch_gyro[3] = {0.0, DEG2RAD(90.0), 0.0};  // 90 deg/s pitch rate
     double pitch_accel[3] = {0.0, 0.0, 1.0};           // Initial upright position
+    double pitch_mag[3] = {1.0, 0.0, 0.0};
     EulerAngles pitch_expected = {0.0, 90.0, 0.0};     // 90-degree pitch
     
-    test_case("90-degree Pitch", pitch_gyro, pitch_accel, duration, dt, 
+    test_case("90-degree Pitch", pitch_gyro, pitch_accel, pitch_mag, duration, dt, 
               &pitch_expected, 2.0);  // 2-degree tolerance
 }
 
@@ -111,13 +113,14 @@ void test_attitude_estimator() {
     // Simulate constant roll rate (90 degrees/second)
     double gyro[3] = {M_PI / 2, 0.0, 0.0}; // pi/2 rad/s roll
     double accel[3] = {0.0, 0.0, 1.0};     // Initially upright
+    double mag[3] = {1.0, 0.0, 0.0};
 
     for (int i = 0; i < steps; i++) {
         double angle = (i * dt) * M_PI / 2; // Accumulated roll angle in radians
         accel[1] = -sin(angle);
         accel[2] = cos(angle);
 
-        attitude_estimator_update(&est, gyro, accel);
+        attitude_estimator_update(&est, gyro, accel, mag);
     }
 
     // Validate final orientation

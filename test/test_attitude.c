@@ -36,10 +36,11 @@ void test_static_position() {
     // Simulate upright position
     double gyro[3] = {0.0, 0.0, 0.0};
     double accel[3] = {0.0, 0.0, 1.0};
+    double mag[3] = {1.0, 0.0, 0.0};
 
     // Update several times
     for(int i = 0; i < 10; i++) {
-        attitude_estimator_update(&est, gyro, accel);
+        attitude_estimator_update(&est, gyro, accel, mag);
     }
 
     // Get final orientation
@@ -67,8 +68,9 @@ void test_rotation() {
         double ay = -sin(angle);
         double az = cos(angle);
         double accel[3] = {0.0, ay, az};
+        double mag[3] = {1,0,0};
 
-        attitude_estimator_update(&est, gyro, accel);
+        attitude_estimator_update(&est, gyro, accel, mag);
 
         if (i % 10 == 0) {
             EulerAngles euler;

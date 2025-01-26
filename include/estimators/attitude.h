@@ -44,7 +44,8 @@ void attitude_estimator_init(AttitudeEstimator* est, const AttitudeEstConfig* co
 // Update with new measurements
 void attitude_estimator_update(AttitudeEstimator* est,
                              const double gyro[3],    // Gyro measurements [x,y,z]
-                             const double accel[3]);  // Accelerometer measurements [x,y,z]
+                             const double accel[3],  // Accelerometer measurements [x,y,z]
+                             const double mag[3]);
 
 // Get current attitude in different representations
 void attitude_estimator_get_quaternion(const AttitudeEstimator* est, double q[4]);

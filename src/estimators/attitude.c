@@ -5,7 +5,8 @@
 // Forward declarations for internal functions
 static void complementary_filter_update(AttitudeEstimator* est, 
                                       const double gyro_unbiased[3],
-                                      const double accel_normalized[3]);
+                                      const double accel_normalized[3],
+                                      const double mag_normalized[3]);
                                       
 static void kalman_filter_update(AttitudeEstimator* est,
                                 const double gyro_unbiased[3],
@@ -56,7 +57,8 @@ void attitude_estimator_init(AttitudeEstimator* est, const AttitudeEstConfig* co
 //void attitude_estimator_update_old(AttitudeEstimator* est, const double gyro[3], const double accel[3]) {
 static void complementary_filter_update(AttitudeEstimator* est,
                                       const double gyro[3],
-                                      const double accel[3]) {
+                                      const double accel[3],
+                                      const double mag[3]) {
     if (!est || !gyro || !accel) return;
 
     // Remove estimated bias from gyro
@@ -162,7 +164,8 @@ static void complementary_filter_update(AttitudeEstimator* est,
 
 void attitude_estimator_update(AttitudeEstimator* est, 
                              const double gyro[3], 
-                             const double accel[3]) {
+                             const double accel[3],
+                             const double mag[3]) {
     if (!est || !gyro || !accel) return;
 
     // Common initialization for all filters
@@ -188,7 +191,7 @@ void attitude_estimator_update(AttitudeEstimator* est,
     // Update based on selected filter type
     switch(est->config.type) {
         case ESTIMATOR_COMPLEMENTARY:
-            complementary_filter_update(est, gyro, accel);
+            complementary_filter_update(est, gyro, accel, mag);
             break;
             
         case ESTIMATOR_KALMAN:
@@ -197,7 +200,7 @@ void attitude_estimator_update(AttitudeEstimator* est,
             
         default:
             // Fallback to complementary filter
-            complementary_filter_update(est, gyro, accel);
+            complementary_filter_update(est, gyro, accel, mag);
     }
 }
 

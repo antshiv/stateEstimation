@@ -85,6 +85,8 @@ void test_kalman_filter()
 
             // Simulate accelerometer readings based on current angle
             double accel[3] = {0.0, 0.0, 1.0};
+    
+            double mag[3] = {1.0, 0.0, 0.0};
 
             if (strstr(tests[t].name, "Roll"))
             {
@@ -115,7 +117,7 @@ void test_kalman_filter()
             }
 
             // Update estimator
-            attitude_estimator_update(&est, tests[t].gyro, accel);
+            attitude_estimator_update(&est, tests[t].gyro, accel, mag);
 
             // Print progress every 20%
             if (i % (steps / 5) == 0)
