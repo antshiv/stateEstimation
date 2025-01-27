@@ -10,7 +10,8 @@ static void complementary_filter_update(AttitudeEstimator* est,
                                       
 static void kalman_filter_update(AttitudeEstimator* est,
                                 const double gyro_unbiased[3],
-                                const double accel_normalized[3]);
+                                const double accel_normalized[3],
+                                const double mag_normalized[3]);
 
 // Common utility functions
 static void normalize_vector(double v[3]) {
@@ -195,7 +196,7 @@ void attitude_estimator_update(AttitudeEstimator* est,
             break;
             
         case ESTIMATOR_KALMAN:
-            kalman_filter_update(est, gyro, accel);
+            kalman_filter_update(est, gyro, accel, mag);
             break;
             
         default:
@@ -227,7 +228,8 @@ void attitude_estimator_get_rates(const AttitudeEstimator* est, double omega[3])
 
 static void kalman_filter_update(AttitudeEstimator* est,
                                 const double gyro[3],
-                                const double accel[3]) {
+                                const double accel[3],
+                                const double mag[3]) {
     double gyro_unbiased[3];
     remove_gyro_bias(gyro, est->gyro_bias, gyro_unbiased);
     double dt = est->config.dt;

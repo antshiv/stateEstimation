@@ -8,43 +8,45 @@ project(StateEstimation VERSION 1.0)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+# Enable testing
+enable_testing()
+
 # Add the attitude math library as a submodule
 add_subdirectory(external/attitudeMathLibrary)
 include_directories(external/attitudeMathLibrary/include)
 
-# Define source files for the library
-set(SOURCES
-    src/estimators/attitude.c
-    src/estimators/altitude.c
-)
+# Define project source and include directories
+set(SRC_DIR src/estimators)
+set(TEST_DIR test)
+set(INCLUDE_DIR include)
 
-# Define include directories
-set(INCLUDE_DIRS
-    include
-)
+# Automatically find all source files in the `src/estimators` folder
+file(GLOB ESTIMATOR_SOURCES "${SRC_DIR}/*.c")
 
-# Add the library
-add_library(state_estimation ${SOURCES})
+# Automatically find all test files in the `test` folder
+file(GLOB TEST_FILES "${TEST_DIR}/*.c")
+
+# Define the library target
+add_library(state_estimation ${ESTIMATOR_SOURCES})
 
 # Include directories for the library
-target_include_directories(state_estimation PUBLIC ${INCLUDE_DIRS})
+target_include_directories(state_estimation PUBLIC ${INCLUDE_DIR})
 
-# Create a test executable
-add_executable(test_attitude_estimate test/test_attitude.c)
-add_executable(test_attitude_estimate_fn test/test_attitude_fn.c)
-add_executable(test_attitude_kalman test/test_kalman.c)
-add_executable(test_altitude test/test_altitude.c)
-add_executable(test_altitude_verbose test/test_altitude_verbose.c)
+# Link the external library to the state_estimation library
+target_link_libraries(state_estimation PUBLIC attitude)
 
-# Link the test executable with the library
-target_link_libraries(test_attitude_estimate PRIVATE state_estimation m attitude)
-target_link_libraries(test_attitude_estimate_fn PRIVATE state_estimation m attitude)
-target_link_libraries(test_attitude_kalman PRIVATE state_estimation m attitude)
-target_link_libraries(test_altitude PRIVATE state_estimation m attitude)
-target_link_libraries(test_altitude_verbose PRIVATE state_estimation m attitude)
+# Function to create test executables for all test files
+function(create_test TARGET_NAME TEST_SOURCE)
+    # Prefix test targets to avoid naming conflicts
+    set(FULL_TARGET_NAME "se_${TARGET_NAME}")
+    add_executable(${FULL_TARGET_NAME} ${TEST_SOURCE})
+    target_link_libraries(${FULL_TARGET_NAME} PRIVATE state_estimation m attitude)
+    add_test(NAME ${FULL_TARGET_NAME} COMMAND ${FULL_TARGET_NAME})
+endfunction()
 
-# Add tests
-enable_testing()
-add_test(NAME TestAttitude COMMAND test_attitude_estmiate)
-add_test(NAME TestAttitudeFn COMMAND test_attitude_estmiate_fn)
-
+# Iterate over all test files and create corresponding test executables
+foreach(TEST_FILE ${TEST_FILES})
+    # Extract the base name of the test file (e.g., "test_attitude" from "test_attitude.c")
+    get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+    create_test(${TEST_NAME} ${TEST_FILE})
+endforeach()
