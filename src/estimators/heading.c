@@ -13,23 +13,6 @@ static void normalize_vector(double v[3]) {
     }
 }
 
-// Rotate a vector using a quaternion
-static void quaternion_rotate_vector(const double q[4], const double v[3], double v_out[3]) {
-    double t2 = q[0] * q[1];
-    double t3 = q[0] * q[2];
-    double t4 = q[0] * q[3];
-    double t5 = -q[1] * q[1];
-    double t6 = q[1] * q[2];
-    double t7 = q[1] * q[3];
-    double t8 = -q[2] * q[2];
-    double t9 = q[2] * q[3];
-    double t10 = -q[3] * q[3];
-
-    v_out[0] = 2 * ((t8 + t10) * v[0] + (t6 - t4) * v[1] + (t3 + t7) * v[2]) + v[0];
-    v_out[1] = 2 * ((t4 + t6) * v[0] + (t5 + t10) * v[1] + (t9 - t2) * v[2]) + v[1];
-    v_out[2] = 2 * ((t7 - t3) * v[0] + (t2 + t9) * v[1] + (t5 + t8) * v[2]) + v[2];
-}
-
 // Compute heading from magnetometer readings
 static double compute_heading(const double mag[3], const double q[4], double mag_declination) {
     double mag_earth[3];
