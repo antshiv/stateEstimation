@@ -3,8 +3,8 @@
 #include "estimators/attitude.h"
 
 // Macros for degree-radian conversion
-#define DEG2RAD(x) ((x) * M_PI / 180.0)
-#define RAD2DEG(x) ((x) * 180.0 / M_PI)
+//#define DEG2RAD(x) ((x) * M_PI / 180.0)
+//#define RAD2DEG(x) ((x) * 180.0 / M_PI)
 
 // Function to check pass/fail with a given tolerance
 int pass_fail(double value, double expected, double tolerance) {

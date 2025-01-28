@@ -4,8 +4,8 @@
 #include "estimators/attitude.h"
 
 // Add these macros at the top
-#define DEG2RAD(x) ((x) * M_PI / 180.0)
-#define RAD2DEG(x) ((x) * 180.0 / M_PI)
+//#define DEG2RAD(x) ((x) * M_PI / 180.0)
+//#define RAD2DEG(x) ((x) * 180.0 / M_PI)
 
 // Add the pass_fail function
 static int pass_fail(double value, double expected, double tolerance)
