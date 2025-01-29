@@ -5,6 +5,7 @@
 #include "attitude/quaternion.h"
 #include "attitude/dcm.h"
 #include "attitude/attitude_utils.h"
+#include "filters/kalman/kalman_attitude.h"
 
 // Estimation method enumeration
 typedef enum {
@@ -12,12 +13,6 @@ typedef enum {
     ESTIMATOR_KALMAN
 } EstimatorType;
 
-// Kalman filter specific configuration
-typedef struct {
-    double process_noise[7];      // Process noise for [q0,q1,q2,q3,bias_x,bias_y,bias_z]
-    double measurement_noise[3];   // Measurement noise for accelerometer [x,y,z]
-    double P[7][7];               // Initial covariance matrix
-} KalmanConfig;
 
 // Attitude estimator configuration
 typedef struct {

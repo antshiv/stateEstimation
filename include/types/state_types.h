@@ -36,13 +36,6 @@ typedef struct {
     double covariance[9];    // 3x3 covariance matrix for orientation uncertainty
 } AttitudeState;
 
-// Euler angles representation (roll, pitch, yaw in radians)
-typedef struct {
-    double roll;    // Rotation around X (phi)
-    double pitch;   // Rotation around Y (theta)
-    double yaw;     // Rotation around Z (psi)
-} EulerAngles;
-
 // Combined state for full pose estimation
 typedef struct {
     PositionState position_state; // Position-related state

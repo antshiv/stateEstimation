@@ -1,5 +1,5 @@
 #include "estimators/attitude_full.h"
-#include "filters/kalman.h"
+#include "filters/kalman/kalman_attitude_full.h"
 //#include "filters/ekf.h"
 //#include "filters/ukf.h"
 //#include "filters/madgwick.h"
@@ -38,7 +38,9 @@ void attitude_full_update(AttitudeFullEstimator* est, const double gyro[3], cons
     // Update using the selected filter type
     switch (est->config.type) {
         case FULL_ESTIMATOR_KALMAN:
-            kalman_filter_full_update(est, gyro, accel, mag);
+            map_attitude_to_kalman(est, &(est->filter.kalman));
+            kalman_full_attitude_update(&(est->filter.kalman), gyro, accel, mag);
+            map_kalman_to_attitude(&(est->filter.kalman), est);
             break;
         case FULL_ESTIMATOR_EKF:
             ekf_update(est, gyro, accel, mag);
